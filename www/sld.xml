@@ -1,0 +1,26 @@
+<FeatureTypeStyle>
+    <Rule>
+        <Title>amphoe</Title>
+          <PolygonSymbolizer>                
+            <!--Fill>                  
+              <CssParameter name="fill">#ffb0ee</CssParameter>                
+            </Fill-->                
+            <Stroke>                  
+              <CssParameter name="stroke">#6b6565</CssParameter>                  
+              <CssParameter name="stroke-width">1</CssParameter>                
+            </Stroke>              
+          </PolygonSymbolizer>  
+          
+          <TextSymbolizer>                
+            <Label>                  
+              <ogc:PropertyName>amp_name</ogc:PropertyName>                
+            </Label>                
+            <Halo>                  
+              <Radius>3</Radius>                  
+              <Fill>                    
+                <CssParameter name="fill">#FFFFFF</CssParameter>                  
+              </Fill>                
+            </Halo>              
+          </TextSymbolizer> 
+    </Rule>
+</FeatureTypeStyle>
