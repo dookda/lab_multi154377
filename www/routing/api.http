@@ -1,0 +1,37 @@
+# GET all houses
+GET http://localhost:3000/api/house
+Content-Type: application/json
+
+###
+
+# GET a single house by ID
+GET http://localhost:3000/api/house/1
+Content-Type: application/json
+
+###
+
+# POST a new user
+POST http://localhost:3000/api/user
+Content-Type: application/json
+
+{
+    "name": "Alice Johnson",
+    "email": "alice@example.com"
+}
+
+###
+
+# PUT update an existing user by ID
+PUT http://localhost:3000/api/user/1
+Content-Type: application/json
+
+{
+    "name": "John Doe Updated",
+    "email": "john.updated@example.com"
+}
+
+###
+
+# DELETE a user by ID
+DELETE http://localhost:3000/api/user/1
+Content-Type: application/json
