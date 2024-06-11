@@ -46,42 +46,46 @@ function rmLyr() {
     });
 }
 
-function onLocationFound(e) {
-    console.log(e);
-    var radius = e.accuracy;
-    var gps = L.marker(e.latlng, { name: "start", draggable: true });
-    // var circle = L.circle(e.latlng, radius);
-    // circle.addTo(map);
-    gps.addTo(map).bindPopup("คุณอยู่ที่นี่").openPopup();
-}
-
 function goRoute() {
     console.log(start, end)
     window.open(
         `https://www.google.com/maps/dir/${start.lat},${start.lng}/${end.lat},${end.lng}`,
         "_blank");
 }
+var start = L.latLng(18.802279095186158, 98.96749412237442);
+// L.marker(start, { name: "start", draggable: true }).addTo(map);
 
-var start;
-function onLocationFound(e) {
-    console.log(e);
-    start = e.latlng;
-    var radius = e.accuracy;
-    var gps = L.marker(e.latlng, { name: "start", draggable: true });
-    // var circle = L.circle(e.latlng, radius);
-    // circle.addTo(map);
-    gps.addTo(map).bindPopup("คุณอยู่ที่นี่").openPopup();
-}
+// function onLocationFound(e) {
+//     console.log(e);
+//     start = e.latlng;
+//     var radius = e.accuracy;
+//     var gps = L.marker(e.latlng, { name: "start", draggable: true });
+//     gps.addTo(map).bindPopup("คุณอยู่ที่นี่").openPopup();
+// }
 
-map.locate({ setView: true, maxZoom: 16 });
-map.on("locationfound", onLocationFound);
+// map.locate({ setView: true, maxZoom: 16 });
+// map.on("locationfound", onLocationFound);
 
-var end;
+let route = L.Routing.control({
+    waypoints: [
+        start,
+        L.latLng(18.802825704128704, 98.95021314578972)
+    ],
+    routeWhileDragging: true
+}).addTo(map);
+
+var end = null;
 map.on("click", function (e) {
     rmLyr();
     end = e.latlng;
     var mk = L.marker(e.latlng, { name: "dest", draggable: true }).addTo(map)
     mk.bindPopup(`<b>หาเส้นทางมายังที่นี่ !</b><br>
         <button onclick="goRoute()">ok</button>`).openPopup();
+
+    route.spliceWaypoints(1, 1, e.latlng);
 });
+
+
+
+
 
