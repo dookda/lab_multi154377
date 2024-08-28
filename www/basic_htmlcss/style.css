@@ -1,0 +1,18 @@
+h2 {
+    background-color: powderblue;
+    color: red;
+}
+
+.bgyellow {
+    background-color: yellow;
+    color: #1b249f;
+}
+
+#geocolor {
+    background-color: burlywood;
+    color: brown;
+}
+
+.da-mt-5 {
+    margin-top: 15px;
+}
