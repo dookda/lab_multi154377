@@ -2,9 +2,11 @@ mapboxgl.accessToken = 'pk.eyJ1IjoiZG9va2RhIiwiYSI6ImNscTM3azN3OTA4dmEyaXF1bmg3c
 const map = new mapboxgl.Map({
     container: 'map',
     style: 'mapbox://styles/mapbox/streets-v9',
-    projection: 'globe', // Display the map as a globe, since satellite-v9 defaults to Mercator
+    projection: 'globe',
     zoom: 12,
-    center: [98.9709308469963, 18.7982209911181]
+    center: [98.9709308469963, 18.7982209911181],
+    pitch: 60, // tilt the map to show 3D
+    bearing: -17.6 //
 });
 
 map.addControl(new mapboxgl.NavigationControl());
@@ -58,3 +60,37 @@ map.on('moveend', () => {
 });
 
 spinGlobe();
+
+map.on('load', () => {
+    map.addSource('building', {
+        'type': 'geojson',
+        'data': './usc_hex.geojson'
+    });
+
+    // Add a layer to use the 3D extrusion effect
+    map.addLayer({
+        'id': '3d-buildings',
+        'type': 'fill-extrusion',
+        'source': 'building',
+        'layout': {},
+        'paint': {
+            'fill-extrusion-color': [
+                'step',
+                ['get', 'usc_height'], // Property to base the classification on
+                '#FFEDA0', // Color for heights less than 20
+                200, '#FED976',
+                400, '#FEB24C',
+                600, '#FD8D3C',
+                800, '#E31A1C'
+            ],
+            'fill-extrusion-opacity': [
+                'case',
+                ['<', ['get', 'usc_height'], 600], 0,
+                0.6
+            ],
+            'fill-extrusion-height': ['get', 'usc_height'],
+            // 'fill-extrusion-base': ['get', 80],
+            'fill-extrusion-opacity': 0.6
+        }
+    });
+});
