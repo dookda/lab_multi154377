@@ -78,10 +78,10 @@ map.on('load', () => {
                 'step',
                 ['get', 'usc_height'], // Property to base the classification on
                 '#FFEDA0', // Color for heights less than 20
-                200, '#FED976',
-                400, '#FEB24C',
-                600, '#FD8D3C',
-                800, '#E31A1C'
+                20, '#FED976',
+                50, '#FEB24C',
+                100, '#FD8D3C',
+                150, '#E31A1C'
             ],
             'fill-extrusion-opacity': [
                 'case',
