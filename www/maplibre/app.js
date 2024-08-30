@@ -1,96 +1,62 @@
-mapboxgl.accessToken = 'pk.eyJ1IjoiZG9va2RhIiwiYSI6ImNscTM3azN3OTA4dmEyaXF1bmg3cXRvbDUifQ.d1Ovd_n9PwJqc_MdGS66-A';
-const map = new mapboxgl.Map({
-    container: 'map',
-    style: 'mapbox://styles/mapbox/streets-v9',
-    projection: 'globe',
-    zoom: 12,
+const MAPTILER_KEY = 'QcH5sAeCUv5rMXKrnJms';
+const map = new maplibregl.Map({
+    style: `https://api.maptiler.com/maps/basic-v2/style.json?key=${MAPTILER_KEY}`,
     center: [98.9709308469963, 18.7982209911181],
-    pitch: 60, // tilt the map to show 3D
-    bearing: -17.6 //
+    zoom: 15.5,
+    pitch: 45,
+    bearing: -17.6,
+    container: 'map',
+    antialias: true
 });
 
-map.addControl(new mapboxgl.NavigationControl());
-// map.scrollZoom.disable();
-
-map.on('style.load', () => {
-    map.setFog({}); // Set the default atmosphere style
-});
-
-// The following values can be changed to control rotation speed:
-
-// At low zooms, complete a revolution every two minutes.
-const secondsPerRevolution = 240;
-// Above zoom level 5, do not rotate.
-const maxSpinZoom = 5;
-// Rotate at intermediate speeds between zoom levels 3 and 5.
-const slowSpinZoom = 3;
-
-let userInteracting = false;
-const spinEnabled = true;
-
-function spinGlobe() {
-    const zoom = map.getZoom();
-    if (spinEnabled && !userInteracting && zoom < maxSpinZoom) {
-        let distancePerSecond = 360 / secondsPerRevolution;
-        if (zoom > slowSpinZoom) {
-            // Slow spinning at higher zooms
-            const zoomDif =
-                (maxSpinZoom - zoom) / (maxSpinZoom - slowSpinZoom);
-            distancePerSecond *= zoomDif;
-        }
-        const center = map.getCenter();
-        center.lng -= distancePerSecond;
-        // Smoothly animate the map over one second.
-        // When this animation is complete, it calls a 'moveend' event.
-        map.easeTo({ center, duration: 1000, easing: (n) => n });
-    }
-}
-
-// Pause spinning on interaction
-map.on('mousedown', () => {
-    userInteracting = true;
-});
-map.on('dragstart', () => {
-    userInteracting = true;
-});
-
-// When animation is complete, start spinning if there is no ongoing interaction
-map.on('moveend', () => {
-    spinGlobe();
-});
-
-spinGlobe();
-
+// The 'building' layer in the streets vector source contains building-height
+// data from OpenStreetMap.
 map.on('load', () => {
-    map.addSource('building', {
-        'type': 'geojson',
-        'data': './usc_hex.geojson'
+    // Insert the layer beneath any symbol layer.
+    const layers = map.getStyle().layers;
+
+    let labelLayerId;
+    for (let i = 0; i < layers.length; i++) {
+        if (layers[i].type === 'symbol' && layers[i].layout['text-field']) {
+            labelLayerId = layers[i].id;
+            break;
+        }
+    }
+
+    map.addSource('openmaptiles', {
+        url: `https://api.maptiler.com/tiles/v3/tiles.json?key=${MAPTILER_KEY}`,
+        type: 'vector',
     });
 
-    // Add a layer to use the 3D extrusion effect
-    map.addLayer({
-        'id': '3d-buildings',
-        'type': 'fill-extrusion',
-        'source': 'building',
-        'layout': {},
-        'paint': {
-            'fill-extrusion-color': [
-                'step',
-                ['get', 'usc_height'], // Property to base the classification on
-                '#FFEDA0', // Color for heights less than 20
-                20, '#FED976',
-                50, '#FEB24C',
-                100, '#FD8D3C',
-                150, '#E31A1C'
-            ],
-            'fill-extrusion-opacity': [
-                'case',
-                ['<', ['get', 'usc_height'], 600], 0,
-                0.6
-            ],
-            'fill-extrusion-height': ['get', 'usc_height'],
-            // 'fill-extrusion-base': ['get', 80],
-            'fill-extrusion-opacity': 0.6
-        }
-    });
+    map.addLayer(
+        {
+            'id': '3d-buildings',
+            'source': 'openmaptiles',
+            'source-layer': 'building',
+            'type': 'fill-extrusion',
+            'minzoom': 15,
+            'filter': ['!=', ['get', 'hide_3d'], true],
+            'paint': {
+                'fill-extrusion-color': [
+                    'interpolate',
+                    ['linear'],
+                    ['get', 'render_height'], 0, 'lightgray', 200, 'royalblue', 400, 'lightblue'
+                ],
+                'fill-extrusion-height': [
+                    'interpolate',
+                    ['linear'],
+                    ['zoom'],
+                    15,
+                    0,
+                    16,
+                    ['get', 'render_height']
+                ],
+                'fill-extrusion-base': ['case',
+                    ['>=', ['get', 'zoom'], 16],
+                    ['get', 'render_min_height'], 0
+                ]
+            }
+        },
+        labelLayerId
+    );
 });
