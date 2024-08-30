@@ -12,7 +12,6 @@ app.get("/api", (req, res) => {
     res.status(200).json({ "status": "success" })
 })
 
-
 const markers = [{
     id: 1,
     name: "marker1",
