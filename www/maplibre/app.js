@@ -34,7 +34,7 @@ map.on('load', () => {
             'source': 'openmaptiles',
             'source-layer': 'building',
             'type': 'fill-extrusion',
-            'minzoom': 15,
+            'minzoom': 14,
             'filter': ['!=', ['get', 'hide_3d'], true],
             'paint': {
                 'fill-extrusion-color': [
@@ -46,7 +46,7 @@ map.on('load', () => {
                     'interpolate',
                     ['linear'],
                     ['zoom'],
-                    15,
+                    12,
                     0,
                     16,
                     ['get', 'render_height']
