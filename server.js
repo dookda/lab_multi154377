@@ -35,8 +35,19 @@ app.post("/api/markers", (req, res) => {
     res.status(200).json(mk)
 })
 
+app.put('/api/v1/addowner/:id/:name', (req, res) => {
+    const id = req.params.id;
+    const name = req.params.name;
+
+    const mk = markers.find(m => m.id == id)
+    mk.name = name
+    res.status(200).json(mk)
+})
+
 app.use('/', express.static('www'))
+app.use(require('./service'))
 
 app.listen(3000, () => {
     console.log("http://localhost:3000")
 });
+

@@ -1,0 +1,46 @@
+GET http://localhost:3000/api/markers/1
+
+### 
+POST http://localhost:3000/api/markers
+Content-Type: application/json
+
+{
+    "id":1
+}
+
+###
+PUT http://localhost:3000/api/v1/addowner/1/sakda
+
+###
+GET http://localhost:3000/api/v1/houses
+
+###
+GET http://localhost:3000/api/v1/houses/1
+
+###
+POST http://localhost:3000/api/v1/houses
+Content-Type: application/json
+
+{
+    "address": "1111/1111", 
+    "mkname": "peter", 
+    "lng": 98.95319697785284, 
+    "lat": 18.803224621787322
+}
+
+###
+PUT http://localhost:3000/api/v1/houses/5/000
+
+###
+DELETE http://localhost:3000/api/v1/houses/3
+
+###
+GET http://localhost:3000/api/v1/village/แม่ทา
+
+
+
+
+
+
+
+
