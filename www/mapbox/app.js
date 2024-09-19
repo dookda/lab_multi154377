@@ -1,4 +1,66 @@
 mapboxgl.accessToken = 'pk.eyJ1IjoiZG9va2RhIiwiYSI6ImNscTM3azN3OTA4dmEyaXF1bmg3cXRvbDUifQ.d1Ovd_n9PwJqc_MdGS66-A';
+
+let style = ["mapbox://styles/mapbox/standard",
+    "mapbox://styles/mapbox/streets-v12",
+    "mapbox://styles/mapbox/outdoors-v12",
+    "mapbox://styles/mapbox/light-v11",
+    "mapbox://styles/mapbox/dark-v11",
+    "mapbox://styles/mapbox/satellite-v9",
+    "mapbox://styles/mapbox/satellite-streets-v12",
+    "mapbox://styles/mapbox/navigation-day-v1",
+    "mapbox://styles/mapbox/navigation-night-v1",
+]
+
+const styleSelect = document.getElementById('styleSelect');
+style.forEach((s) => {
+    const opt = document.createElement('option');
+    opt.value = s;
+    opt.text = s;
+    styleSelect.appendChild(opt);
+})
+
+styleSelect.addEventListener('change', (e) => {
+    map.setStyle(e.target.value);
+
+    // destroy befor add new source
+    // map.removeSource('building');
+    // map.removeLayer('3d-buildings');
+    // loadJson();
+
+    // reload source    
+    map.getSource('building').setData('./usc_hex.geojson');
+    map.addSource('building', {
+        'type': 'geojson',
+        'data': './usc_hex.geojson'
+    });
+
+    map.addLayer({
+        'id': '3d-buildings',
+        'type': 'fill-extrusion',
+        'source': 'building',
+        'layout': {},
+        'paint': {
+            'fill-extrusion-color': [
+                'step',
+                ['get', 'usc_height'],
+                '#FFEDA0',
+                20, '#FED976',
+                50, '#FEB24C',
+                100, '#FD8D3C',
+                150, '#E31A1C'
+            ],
+            'fill-extrusion-opacity': [
+                'case',
+                ['<', ['get', 'usc_height'], 600], 0,
+                0.6
+            ],
+            'fill-extrusion-height': ['get', 'usc_height'],
+            // 'fill-extrusion-base': ['get', 80],
+            'fill-extrusion-opacity': 0.6
+        }
+    });
+})
+
 const map = new mapboxgl.Map({
     container: 'map',
     style: 'mapbox://styles/mapbox/streets-v9',
@@ -15,8 +77,6 @@ map.addControl(new mapboxgl.NavigationControl());
 map.on('style.load', () => {
     map.setFog({}); // Set the default atmosphere style
 });
-
-// The following values can be changed to control rotation speed:
 
 // At low zooms, complete a revolution every two minutes.
 const secondsPerRevolution = 240;
@@ -40,14 +100,13 @@ function spinGlobe() {
         }
         const center = map.getCenter();
         center.lng -= distancePerSecond;
-        // Smoothly animate the map over one second.
-        // When this animation is complete, it calls a 'moveend' event.
         map.easeTo({ center, duration: 1000, easing: (n) => n });
     }
 }
 
 // Pause spinning on interaction
-map.on('mousedown', () => {
+map.on('mousedown', (e) => {
+    console.log(e);
     userInteracting = true;
 });
 map.on('dragstart', () => {
@@ -61,13 +120,17 @@ map.on('moveend', () => {
 
 spinGlobe();
 
+// map.on('load', () => {
 map.on('load', () => {
+    loadJson();
+});
+
+const loadJson = () => {
     map.addSource('building', {
         'type': 'geojson',
         'data': './usc_hex.geojson'
     });
 
-    // Add a layer to use the 3D extrusion effect
     map.addLayer({
         'id': '3d-buildings',
         'type': 'fill-extrusion',
@@ -76,8 +139,8 @@ map.on('load', () => {
         'paint': {
             'fill-extrusion-color': [
                 'step',
-                ['get', 'usc_height'], // Property to base the classification on
-                '#FFEDA0', // Color for heights less than 20
+                ['get', 'usc_height'],
+                '#FFEDA0',
                 20, '#FED976',
                 50, '#FEB24C',
                 100, '#FD8D3C',
@@ -93,4 +156,4 @@ map.on('load', () => {
             'fill-extrusion-opacity': 0.6
         }
     });
-});
+};
