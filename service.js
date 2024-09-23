@@ -61,7 +61,6 @@ app.get("/api/v1/village/:tam", (req, res) => {
     })
 })
 
-// สร้าง API เรียกข้อมูลหมู่บ้าน /api/v1/village/:tam
 
 
 

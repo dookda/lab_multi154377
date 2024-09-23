@@ -20,22 +20,17 @@ var overmap = {
 
 L.control.layers(basemap, overmap).addTo(map);
 
-map.locate({ setView: true, maxZoom: 18 })
 
-function onLocationFound(e) {
-    console.log(e.accuracy);
-    var gps = L.marker(e.latlng, { draggable: true });
-    gps.addTo(map).bindPopup("คุณอยู่ที่นี่").openPopup();
 
-    var circle = L.circle(e.latlng, { radius: e.accuracy });
-    circle.addTo(map)
-    start = e.latlng;
-}
+map.pm.addControls({
+    position: 'topleft',
+    drawCircle: false,
+    drawCircleMarker: false
+});
 
-function onLocationError(e) {
-    console.log(e)
-}
-
-map.on("locationfound", onLocationFound)
-map.on("locationerror", onLocationError)
-
+map.on('pm:create', (e) => {
+    let text = e.layer.toGeoJSON();
+    let geojson = JSON.stringify(text.geometry);
+    console.log(geojson);
+    axios.post('/drawapi/postgeojson', { data: geojson }).then(r => console.log(r));
+});
