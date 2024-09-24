@@ -21,16 +21,14 @@ var overmap = {
 L.control.layers(basemap, overmap).addTo(map);
 
 
-
 map.pm.addControls({
-    position: 'topleft',
+    drawCircleMarker: false,
     drawCircle: false,
-    drawCircleMarker: false
-});
-
-map.on('pm:create', (e) => {
-    let text = e.layer.toGeoJSON();
-    let geojson = JSON.stringify(text.geometry);
-    console.log(geojson);
-    axios.post('/drawapi/postgeojson', { data: geojson }).then(r => console.log(r));
-});
+    drawRectangle: false,
+    drawText: false,
+    dragMode: false,
+    editMode: false,
+    removalMode: false,
+    cutPolygon: false,
+    rotateMode: false
+})
