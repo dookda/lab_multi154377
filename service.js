@@ -61,7 +61,24 @@ app.get("/api/v1/village/:tam", (req, res) => {
     })
 })
 
+// lab7
+app.post('/drawapi/postgeojson', (req, res) => {
+    const { table, data } = req.body
+    let sql = `INSERT INTO ${table}(pname, geom)VALUES(
+                'test2', ST_GeomFromGeoJSON('${data}'))`;
+    console.log(sql);
 
+    db.query(sql).then(r => {
+        res.json({ status: "success" })
+    })
+})
 
+app.get('/drawapi/getdata/:table', (req, res) => {
+    const { table } = req.params
+    let sql = `SELECT pname, ST_AsGeoJSON(geom) as geom FROM ${table}`;
+    db.query(sql).then(r => {
+        res.json({ data: r.rows })
+    })
+})
 
 module.exports = app;

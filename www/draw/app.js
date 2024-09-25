@@ -32,3 +32,18 @@ map.pm.addControls({
     cutPolygon: false,
     rotateMode: false
 })
+
+map.on('pm:create', (e) => {
+    let text = e.layer.toGeoJSON();
+    let geojson = text.geometry;
+    console.log(geojson);
+
+    if (geojson.type == 'Polygon') {
+        axios.post('/drawapi/postgeojson', { table: 'survey_polygon', data: geojson }).then(r => console.log(r));
+    } else if (geojson.type == 'LineString') {
+        axios.post('/drawapi/postgeojson', { table: 'survey_line', data: geojson }).then(r => console.log(r));
+    } else if (geojson.type == 'Point') {
+        axios.post('/drawapi/postgeojson', { table: 'survey_point', data: geojson }).then(r => console.log(r));
+    }
+    // axios.post('/drawapi/postgeojson', { table: , data: geojson }).then(r => console.log(r));
+});

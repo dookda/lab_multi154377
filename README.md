@@ -63,39 +63,48 @@ const gotoGoogle = () => {
 ```
 
 ### lab 17
+0. install libraries
+```html
+<link rel="stylesheet" href="https://unpkg.com/@geoman-io/leaflet-geoman-free@latest/dist/leaflet-geoman.css" />
 
-create database
-```sql
-CREATE TABLE survey_point (
-    gid serial not null,
-    pname text,
-    pdesc text,
-    geom geometry(point, 4326)
-)
 
-CREATE TABLE survey_line (
-    gid serial not null,
-    pname text,
-    pdesc text,
-    geom geometry(point, 4326)
-)
-
-CREATE TABLE survey_polygon (
-    gid serial not null,
-    pname text,
-    pdesc text,
-    geom geometry(point, 4326)
-)
+<script src="https://unpkg.com/@geoman-io/leaflet-geoman-free@latest/dist/leaflet-geoman.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 ```
 
-api
+1.create database
+```sql
+CREATE TABLE survey_point (
+    gid serial NOT NULL,
+    pname text,
+    pdesc text,
+    geom geometry(Point, 4326)
+);
+
+CREATE TABLE survey_line (
+    gid serial NOT NULL,
+    pname text,
+    pdesc text,
+    geom geometry(LineString, 4326)
+);
+
+CREATE TABLE survey_polygon (
+    gid serial NOT NULL,
+    pname text,
+    pdesc text,
+    geom geometry(Polygon, 4326)
+);
+```
+
+2. create API
 ```js
 app.post('/drawapi/postgeojson', (req, res) => {
-    const { data } = req.body
-    let sql = `INSERT INTO survey_point(pname, geom)VALUES(
-                'test2', ST_GeomFromGeoJSON('${data}')
-            )`
-    db.query(sql).then(res.json({ status: "success" }))
+    const { table, data } = req.body
+    let sql = `INSERT INTO ${table}(pname, geom)VALUES(
+                'test2', ST_GeomFromGeoJSON('${data}'))`
+    db.query(sql).then(r=>{
+        res.json({ status: "success" })
+        })
 })
 
 app.get('/drawapi/getdata', (req, res) => {
@@ -107,13 +116,19 @@ app.get('/drawapi/getdata', (req, res) => {
 
 ```
 
-app.js
+3. create control & send geometry to database
 ```js
 map.pm.addControls({
-    position: 'topleft',
+    drawCircleMarker: false,
     drawCircle: false,
-    drawCircleMarker: false
-});
+    drawRectangle: false,
+    drawText: false,
+    dragMode: false,
+    editMode: false,
+    removalMode: false,
+    cutPolygon: false,
+    rotateMode: false
+})
 
 map.on('pm:create', (e) => {
     let text = e.layer.toGeoJSON();
