@@ -73,11 +73,38 @@ app.post('/drawapi/postgeojson', (req, res) => {
     })
 })
 
-app.get('/drawapi/getdata/:table', (req, res) => {
+app.get('/drawapi/getgeojson/:table', (req, res) => {
     const { table } = req.params
-    let sql = `SELECT pname, ST_AsGeoJSON(geom) as geom FROM ${table}`;
+    let sql = `SELECT gid, pname, ST_AsGeoJSON(geom) as geom FROM ${table}`;
     db.query(sql).then(r => {
-        res.json({ data: r.rows })
+        const features = r.rows.map(row => ({
+            type: 'Feature',
+            id: row.gid,
+            properties: {
+                gid: row.gid,
+                table: table,
+            },
+            geometry: JSON.parse(row.geom)
+        }));
+
+        const geojson = {
+            type: 'FeatureCollection',
+            features: features
+        };
+
+        res.json(geojson);
+    }).catch(error => {
+        res.status(500).send(error.message);
+    });
+})
+
+app.delete('/drawapi/deletegeojson/:table/:gid', (req, res) => {
+    const { table, gid } = req.params
+    let sql = `DELETE FROM ${table} WHERE gid = ${gid}`;
+    console.log(sql);
+
+    db.query(sql).then(r => {
+        res.json({ status: "deleted" })
     })
 })
 

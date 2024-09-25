@@ -101,16 +101,46 @@ CREATE TABLE survey_polygon (
 app.post('/drawapi/postgeojson', (req, res) => {
     const { table, data } = req.body
     let sql = `INSERT INTO ${table}(pname, geom)VALUES(
-                'test2', ST_GeomFromGeoJSON('${data}'))`
-    db.query(sql).then(r=>{
+                'test2', ST_GeomFromGeoJSON('${data}'))`;
+    console.log(sql);
+
+    db.query(sql).then(r => {
         res.json({ status: "success" })
-        })
+    })
 })
 
-app.get('/drawapi/getdata', (req, res) => {
-    let sql = `SELECT pname, ST_AsGeoJSON(geom) as geom FROM survey_point`;
+app.get('/drawapi/getgeojson/:table', (req, res) => {
+    const { table } = req.params
+    let sql = `SELECT gid, pname, ST_AsGeoJSON(geom) as geom FROM ${table}`;
     db.query(sql).then(r => {
-        res.json({ data: r.rows })
+        const features = r.rows.map(row => ({
+            type: 'Feature',
+            id: row.gid,
+            properties: {
+                gid: row.gid,
+                table: table,
+            },
+            geometry: JSON.parse(row.geom)
+        }));
+
+        const geojson = {
+            type: 'FeatureCollection',
+            features: features
+        };
+
+        res.json(geojson);
+    }).catch(error => {
+        res.status(500).send(error.message);
+    });
+})
+
+app.delete('/drawapi/deletegeojson/:table/:gid', (req, res) => {
+    const { table, gid } = req.params
+    let sql = `DELETE FROM ${table} WHERE gid = ${gid}`;
+    console.log(sql);
+
+    db.query(sql).then(r => {
+        res.json({ status: "deleted" })
     })
 })
 
@@ -125,15 +155,56 @@ map.pm.addControls({
     drawText: false,
     dragMode: false,
     editMode: false,
-    removalMode: false,
+    removalMode: true,
     cutPolygon: false,
     rotateMode: false
 })
 
 map.on('pm:create', (e) => {
     let text = e.layer.toGeoJSON();
-    let geojson = JSON.stringify(text.geometry);
-    console.log(geojson);
-    axios.post('/drawapi/postgeojson', { data: geojson }).then(r => console.log(r));
+    let geojson = text.geometry;
+    console.log(JSON.stringify(geojson));
+
+    if (geojson.type == 'Point') {
+        console.log(JSON.stringify(geojson));
+        axios.post('/drawapi/postgeojson', { table: 'survey_point', data: JSON.stringify(geojson) }).then(r => console.log(r));
+    } else if (geojson.type == 'LineString') {
+        console.log(JSON.stringify(geojson));
+        axios.post('/drawapi/postgeojson', { table: 'survey_line', data: JSON.stringify(geojson) }).then(r => console.log(r));
+    } else if (geojson.type == 'Polygon') {
+        console.log(JSON.stringify(geojson));
+        axios.post('/drawapi/postgeojson', { table: 'survey_polygon', data: JSON.stringify(geojson) }).then(r => console.log(r));
+    }
+});
+```
+
+4. load data to map
+```js
+function removeLayer() {
+    map.eachLayer((layer) => {
+        if (layer.options.name == 'geojson_data') {
+            map.removeLayer(layer);
+        }
+    });
+}
+
+function loadGeojson(table) {
+    axios.get(`/drawapi/getgeojson/${table}`).then(r => {
+        console.log(r.data);
+        L.geoJSON(r.data, { name: 'geojson_data' }).addTo(map);
+    });
+}
+```
+
+5. remove layer
+```js
+map.on('pm:remove', (e) => {
+    console.log(e);
+    let gid = e.layer.feature.properties.gid;
+    let table = e.layer.feature.properties.table;
+    console.log(gid, table);
+    axios.delete(`/drawapi/deletegeojson/${table}/${gid}`).then(r => {
+        console.log(r.data);
+    });
 });
 ```
