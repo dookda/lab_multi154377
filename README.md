@@ -213,9 +213,14 @@ L.geoJSON(nearest.geometry, { name: "hp" })
 
 2. add style
 ```css
-#list {
+#map {
     width: 100%;
     height: 560px;
+}
+
+#list {
+    width: 100%;
+    height: 500px;
     overflow-y: auto;
 }
 ```
