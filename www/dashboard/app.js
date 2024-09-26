@@ -64,7 +64,7 @@ function showList(item) {
     let list = document.getElementById("ul")
     console.log(item);
     item.forEach(i => {
-        list.innerHTML += `<li class="badge text-bg-warning cursor" onclick="setView(${i.station.tele_station_lat},${i.station.tele_station_long})">${i.station.tele_station_name.th} ${i.waterlevel_msl} mm.</li>`
+        list.innerHTML += `<li onclick="setView(${i.station.tele_station_lat},${i.station.tele_station_long})"><span class="badge text-bg-warning cursor">${i.station.tele_station_name.th} ${i.waterlevel_msl} mm.</span></li>`
     })
 }
 

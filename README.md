@@ -272,7 +272,7 @@ function showList(item) {
     let list = document.getElementById("ul")
     console.log(item);
     item.forEach(i => {
-        list.innerHTML += `<li class="badge text-bg-warning">${i.station.tele_station_name.th} ${i.waterlevel_msl} mm.</li>`
+        list.innerHTML += `<li class="cursor"><span class="badge text-bg-warning">${i.station.tele_station_name.th} ${i.waterlevel_msl} mm.</span></li>`
     })
 }
 ```
