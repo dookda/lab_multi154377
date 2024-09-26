@@ -1,9 +1,14 @@
 # lab_multi154377
 
-### lab 13
+## lab 13 การหาตำแหน่ง
+
+0. add map locate
 ```js
 map.locate({ setView: true, maxZoom: 18 })
+```
 
+1. create onLocationFound function
+```js
 function onLocationFound(e) {
     console.log(e.accuracy);
     var gps = L.marker(e.latlng, { draggable: true });
@@ -17,13 +22,18 @@ function onLocationFound(e) {
 function onLocationError(e) {
     console.log(e)
 }
+```
 
+2. call function
+```js
 map.on("locationfound", onLocationFound)
 map.on("locationerror", onLocationError)
 
 ```
 
-### lab 14
+## lab 14 การนำทาง
+
+0. copy from "13 geolocation lab"
 ```js
 map.locate({ setView: true, maxZoom: 18 })
 var start = null;
@@ -44,7 +54,18 @@ function onLocationError(e) {
 
 map.on("locationfound", onLocationFound)
 map.on("locationerror", onLocationError)
+```
 
+1. create google map route function
+```js
+function gotoGoogle(){
+    console.log(start, end);
+    window.open(`https://www.google.co.th/maps/dir/${start.lat},${start.lng}/${end.lat},${end.lng}`, "_blank")
+}
+```
+
+2. map on click event
+```js
 map.on("click", function (e) {
     map.eachLayer(function (layer) {
         if (layer.options.name == 'marker') {
@@ -55,16 +76,11 @@ map.on("click", function (e) {
     end = e.latlng;
     L.marker(e.latlng, { name: 'marker' }).addTo(map).bindPopup(`<button class="btn btn-success" onclick="gotoGoogle()">ok</button>`).openPopup();
 })
-
-const gotoGoogle = () => {
-    console.log(start, end);
-    window.open(`https://www.google.co.th/maps/dir/${start.lat},${start.lng}/${end.lat},${end.lng}`, "_blank")
-}
 ```
 
-### lab15
-0. install libraries
-``html
+## lab15 การวิเคราะห์ข้อมูลบนเว็บแผนที่
+0. copy "geolocation lab" & install libraries
+```html
 <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 ```
 
@@ -127,7 +143,7 @@ res.data.forEach(i => {
 L.circle(e.latlng, { radius: 1000, name: "hp" }).addTo(map);
 ```
 
-5. remove layer function
+6. remove layer function
 ```js
 function removeLayer() {
     map.eachLayer((layer) => {
@@ -138,12 +154,12 @@ function removeLayer() {
 }
 ```
 
-6. add Turf.js
+7. add Turf.js
 ```html
 <script src="https://cdn.jsdelivr.net/npm/@turf/turf@7/turf.min.js"></script>
 ```
 
-7.  nearestPoint function  https://turfjs.org/docs/api/nearestPoint
+8.  nearestPoint function  https://turfjs.org/docs/api/nearestPoint
 ```js
 const points = res.data.map(i => turf.point([i.lng, i.lat]));
 const targetPoint = turf.point([e.latlng.lng, e.latlng.lat]);
@@ -154,8 +170,14 @@ L.geoJSON(nearest.geometry, { name: "hp" })
 
 ```
 
-### lab 17
-0. install libraries
+## lab 16 การเขียนเว็บแผนที่และกระดานสรุป
+0. copy "geolocation lab" & install libraries
+
+
+
+
+## lab 17 การสร้างและแก้ไขข้อมูล Geometry
+0. copy "geolocation lab" & install libraries
 ```html
 <link rel="stylesheet" href="https://unpkg.com/@geoman-io/leaflet-geoman-free@latest/dist/leaflet-geoman.css" />
 
