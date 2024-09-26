@@ -62,6 +62,98 @@ const gotoGoogle = () => {
 }
 ```
 
+### lab15
+0. install libraries
+``html
+<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+```
+
+1. test ST_DWithin()
+```sql
+SELECT h.*, ST_X(h.geom) as lng, ST_Y(h.geom) as lat
+FROM cm_hospital_4326 h
+WHERE ST_DWithin(
+        ST_Transform(h.geom, 32647),
+        ST_Transform(ST_GeomFromText('POINT(99.00149987736573 18.88616849231567)',4326),32647),
+    15000) = true
+```
+
+2. create API
+```js
+app.get('/getdwithin/:lat/:lng/:radius', (req, res) => {
+    const { lat, lng, radius } = req.params;
+    console.log(lat, lng);
+    let sql = `SELECT h.*, ST_AsGeoJSON(h.geom) as json, ST_X(h.geom) as lng, ST_Y(h.geom) as lat
+                FROM cm_hospital_4326 h
+                WHERE ST_DWithin(
+                    ST_Transform(h.geom, 32647),
+                    ST_Transform(ST_GeomFromText('POINT(${lng} ${lat})', 4326),32647),
+                ${radius}) = true`;
+    db.query(sql).then(r => {
+        res.json(r.rows)
+    })
+})
+```
+
+3. on click event
+```js
+map.on('click', (e) => {
+    let myIcon = L.icon({
+        iconUrl: 'https://cdn-icons-png.flaticon.com/128/9131/9131546.png',
+        iconSize: [36, 36],
+        iconAnchor: [13, 32],
+        popupAnchor: [7, -25]
+    })
+
+    L.marker(e.latlng, { icon: myIcon, name: "hp" }).addTo(map)
+    axios.get(`/getdwithin/${e.latlng.lat}/${e.latlng.lng}/5000`)
+        .then((res) => {
+            console.log(res);
+        });
+})
+```
+
+4. add marker
+```js
+res.data.forEach(i => {
+    L.geoJSON(JSON.parse(i.json), { name: "hp" })
+        .addTo(map)
+        .bindPopup(i.name);
+})
+```
+
+5. add circle
+```js
+L.circle(e.latlng, { radius: 1000, name: "hp" }).addTo(map);
+```
+
+5. remove layer function
+```js
+function removeLayer() {
+    map.eachLayer((layer) => {
+        if (layer.options.name == 'hp') {
+            map.removeLayer(layer);
+        }
+    });
+}
+```
+
+6. add Turf.js
+```html
+<script src="https://cdn.jsdelivr.net/npm/@turf/turf@7/turf.min.js"></script>
+```
+
+7.  nearestPoint function  https://turfjs.org/docs/api/nearestPoint
+```js
+const points = res.data.map(i => turf.point([i.lng, i.lat]));
+const targetPoint = turf.point([e.latlng.lng, e.latlng.lat]);
+var nearest = turf.nearestPoint(targetPoint, turf.featureCollection(points));
+L.geoJSON(nearest.geometry, { name: "hp" })
+    .addTo(map)
+    .bindPopup('ใกล้ที่สุด').openPopup();
+
+```
+
 ### lab 17
 0. install libraries
 ```html
