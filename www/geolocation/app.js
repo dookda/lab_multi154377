@@ -4,7 +4,9 @@ var map = L.map("map", {
 });
 
 var osm = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {});
-
+var Esri_WorldTopoMap = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}', {
+    attribution: 'Tiles &copy; Esri &mdash; Esri, DeLorme, NAVTEQ, TomTom, Intermap, iPC, USGS, FAO, NPS, NRCAN, GeoBase, Kadaster NL, Ordnance Survey, Esri Japan, METI, Esri China (Hong Kong), and the GIS User Community'
+});
 var province = L.tileLayer.wms("https://engrids.soc.cmu.ac.th/geoserver/th/wms?", {
     layers: "th:province_4326",
     format: "image/png",
@@ -12,7 +14,8 @@ var province = L.tileLayer.wms("https://engrids.soc.cmu.ac.th/geoserver/th/wms?"
 })
 
 var basemap = {
-    "osm": osm.addTo(map)
+    "osm": osm.addTo(map),
+    "Esri_WorldTopoMap": Esri_WorldTopoMap
 }
 var overmap = {
     "จังหวัด": province.addTo(map)

@@ -223,6 +223,10 @@ L.geoJSON(nearest.geometry, { name: "hp" })
     height: 500px;
     overflow-y: auto;
 }
+
+.cursor {
+    cursor: pointer;
+}
 ```
 
 3. water level API
