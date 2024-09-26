@@ -277,7 +277,18 @@ function showList(item) {
 }
 ```
 
-8. create showChart function
+8. add setView
+```js
+function setView(lat, lng) {
+    map.setView([Number(lat), Number(lng)], 15)
+}
+```
+
+```js
+list.innerHTML += `<li class="cursor" onclick="setView(${i.station.tele_station_lat},${i.station.tele_station_long})"><span class="badge text-bg-warning cursor">${i.station.tele_station_name.th} ${i.waterlevel_msl} mm.</span></li>`
+```
+
+9. create showChart function
 ```js
 function showChart(item) {
     var options = {
