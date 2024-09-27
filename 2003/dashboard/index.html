@@ -13,12 +13,34 @@
 </head>
 
 <body>
-
-    <div class="card">
-        <div class="card-body" id="map"></div>
+    <div class="container mt-5">
+        <div class="row">
+            <div class="col-8">
+                <div class="card">
+                    <div class="card-body" id="map"></div>
+                </div>
+            </div>
+            <div class="col-4">
+                <div class="card">
+                    <div class="card-body">
+                        <label for="">น้ำล้นตลิ่ง</label>
+                        <div id="list">
+                            <ul id="ul"></ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row mt-3">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-body">
+                        <div id="chart"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
-
-
 </body>
 
 <!-- Make sure you put this AFTER Leaflet's CSS -->
@@ -27,9 +49,8 @@
     crossorigin="anonymous"></script>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
     integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
-
+<script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
 <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
-
 <script src="./app.js"></script>
 
 </html>

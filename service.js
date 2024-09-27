@@ -62,19 +62,8 @@ app.get("/api/v1/village/:tam", (req, res) => {
 })
 
 // lab 15
-app.get('/getdwithin/:lat/:lng/:radius', (req, res) => {
-    const { lat, lng, radius } = req.params;
-    console.log(lat, lng);
-    let sql = `SELECT h.*, ST_AsGeoJSON(h.geom) as json, ST_X(h.geom) as lng, ST_Y(h.geom) as lat
-                FROM cm_hospital_4326 h
-                WHERE ST_DWithin(
-                    ST_Transform(h.geom, 32647),
-                    ST_Transform(ST_GeomFromText('POINT(${lng} ${lat})', 4326),32647),
-                ${radius}) = true`;
-    db.query(sql).then(r => {
-        res.json(r.rows)
-    })
-})
+
+// lab 16
 
 // lab 17
 app.post('/drawapi/postgeojson', (req, res) => {
@@ -123,6 +112,19 @@ app.delete('/drawapi/deletegeojson/:table/:gid', (req, res) => {
     })
 })
 
+app.get('/getdwithin/:lat/:lng/:radius', (req, res) => {
+    const { lat, lng, radius } = req.params;
+    console.log(lat, lng);
+    let sql = `SELECT h.*, ST_AsGeoJSON(h.geom) as json
+                FROM cm_hospital_4326 h
+                WHERE ST_DWithin(
+                    ST_Transform(h.geom, 32647),
+                    ST_Transform(ST_GeomFromText('POINT(${lng} ${lat})', 4326),32647),
+                ${radius}) = true`;
+    db.query(sql).then(r => {
+        res.json(r.rows)
+    })
+})
 
 
 module.exports = app;

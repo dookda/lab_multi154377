@@ -20,7 +20,6 @@ var overmap = {
 
 L.control.layers(basemap, overmap).addTo(map);
 
-
 map.pm.addControls({
     drawCircleMarker: false,
     drawCircle: false,
@@ -37,7 +36,6 @@ map.on('pm:create', (e) => {
     let text = e.layer.toGeoJSON();
     let geojson = text.geometry;
     console.log(JSON.stringify(geojson));
-    removeLayer()
 
     if (geojson.type == 'Point') {
         console.log(JSON.stringify(geojson));
@@ -49,15 +47,11 @@ map.on('pm:create', (e) => {
         console.log(JSON.stringify(geojson));
         axios.post('/drawapi/postgeojson', { table: 'survey_polygon', data: JSON.stringify(geojson) }).then(r => console.log(r));
     }
-
-    loadGeojson('survey_point');
-    loadGeojson('survey_line');
-    loadGeojson('survey_polygon');
 });
 
-loadGeojson('survey_point');
-loadGeojson('survey_line');
-loadGeojson('survey_polygon');
+loadGeojson('survey_point')
+loadGeojson('survey_line')
+loadGeojson('survey_polygon')
 
 function removeLayer() {
     map.eachLayer((layer) => {
@@ -83,4 +77,3 @@ map.on('pm:remove', (e) => {
         console.log(r.data);
     });
 });
-

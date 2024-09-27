@@ -1,58 +1,60 @@
 var map = L.map("map", {
-    center: [18.80585034537436, 98.9596061077835],
+    center: [18.78785492228646, 98.9861297607422],
     zoom: 15
 });
 
-var CartoDB_Positron = L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
-    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
-    subdomains: 'abcd',
-    maxZoom: 20
-});
+var osm = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {});
 
-var basemaps = {
-    "แผนที่ CartoDB": CartoDB_Positron.addTo(map)
+var province = L.tileLayer.wms("https://engrids.soc.cmu.ac.th/geoserver/th/wms?", {
+    layers: "th:province_4326",
+    format: "image/png",
+    transparent: true
+})
+
+var basemap = {
+    "osm": osm.addTo(map)
+}
+var overmap = {
+    "จังหวัด": province.addTo(map)
 }
 
-var overlay = {}
-L.control.layers(basemaps, overlay).addTo(map)
+L.control.layers(basemap, overmap).addTo(map);
 
+map.on('click', (e) => {
+    console.log(e.latlng);
+    removeLayer();
+    L.circle(e.latlng, { radius: 1000, name: "hp" }).addTo(map);
+    let myIcon = L.icon({
+        iconUrl: 'https://cdn-icons-png.flaticon.com/128/9131/9131546.png',
+        iconSize: [36, 36],
+        iconAnchor: [13, 32],
+        popupAnchor: [7, -25]
+    })
 
-var points = turf.featureCollection([
-    turf.point([98.95002855394502, 18.802844016761785], { name: 'คณะสังคมศาสตร์' }),
-    turf.point([98.95488110296868, 18.808323272682046], { name: 'ประตูหน้ามหาวิทยาลัย' }),
-    turf.point([98.9679061982553, 18.801417011704267], { name: 'แยกเมญ่า' })
-]);
+    L.marker(e.latlng, { icon: myIcon, name: "hp" }).addTo(map)
+    axios.get(`/getdwithin/${e.latlng.lat}/${e.latlng.lng}/1000`)
+        .then((res) => {
+            const points = res.data.map(i => turf.point([i.lng, i.lat]));
+            const targetPoint = turf.point([e.latlng.lng, e.latlng.lat]);
+            var nearest = turf.nearestPoint(targetPoint, turf.featureCollection(points));
+            L.geoJSON(nearest.geometry, { name: "hp" })
+                .addTo(map)
+                .bindPopup('ใกล้ที่สุด').openPopup();
 
-points.features.forEach(function (point) {
-    L.marker([point.geometry.coordinates[1], point.geometry.coordinates[0]])
-        .addTo(map)
-        .bindPopup(point.properties.name);
-});
+            res.data.forEach(i => {
+                L.geoJSON(JSON.parse(i.json), { name: "hp" })
+                    .addTo(map)
+                    .bindPopup(i.name);
+            })
+            console.log(res);
+        });
+})
 
-var from = points.features[0];
-var to = points.features[2];
-var options = { units: 'kilometers' };
-
-var distance = turf.distance(from, to, options);
-console.log('Distance: ' + distance + ' kilometers');
-
-var buffered = turf.buffer(from, 1, options);
-
-let style = {
-    "color": "#ff7800",
-    "weight": 5,
-    "opacity": 0.65
-};
-
-L.geoJSON(buffered, style).addTo(map);
-
-var within = turf.pointsWithinPolygon(points, buffered);
-console.log(within);
-within.features.forEach(function (point) {
-    L.circleMarker([point.geometry.coordinates[1], point.geometry.coordinates[0]], {
-        radius: 8,
-        color: 'red'
-    }).addTo(map).bindPopup('Within Buffer: ' + point.properties.name);
-});
-
+function removeLayer() {
+    map.eachLayer((layer) => {
+        if (layer.options.name == 'hp') {
+            map.removeLayer(layer);
+        }
+    });
+}
 

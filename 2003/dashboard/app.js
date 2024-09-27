@@ -56,18 +56,9 @@ let redIcon = L.icon({
     popupAnchor: [7, -25]
 })
 
-axios.get("http://api2.thaiwater.net:9200/api/v1/thaiwater30/provinces/waterlevel").then(r => {
-
-    let critical = r.data.data.filter(item => item.diff_wl_bank_text == 'ล้นตลิ่ง (ม.)')
-    showList(critical);
-    showChart(critical);
-
-    r.data.data.forEach(item => {
-        console.log(item);
-        let latlng = { lat: item.station.tele_station_lat, lng: item.station.tele_station_long }
-        L.marker(latlng, { icon: item.diff_wl_bank_text == 'ล้นตลิ่ง (ม.)' ? redIcon : greenIcon }).addTo(map).bindPopup(`${item.station.tele_station_name.th}<br>${item.waterlevel_msl} mm.<br>${item.diff_wl_bank_text}`)
-    })
-});
+function setView(lat, lng) {
+    map.setView([Number(lat), Number(lng)], 15)
+}
 
 function showList(item) {
     let list = document.getElementById("ul")
@@ -75,10 +66,6 @@ function showList(item) {
     item.forEach(i => {
         list.innerHTML += `<li class="cursor" onclick="setView(${i.station.tele_station_lat},${i.station.tele_station_long})"><span class="badge text-bg-warning cursor">${i.station.tele_station_name.th} ${i.waterlevel_msl} mm.</span></li>`
     })
-}
-
-function setView(lat, lng) {
-    map.setView([Number(lat), Number(lng)], 15)
 }
 
 function showChart(item) {
@@ -124,3 +111,15 @@ function showChart(item) {
     const chart = new ApexCharts(document.querySelector("#chart"), options);
     chart.render();
 }
+
+axios.get("http://api2.thaiwater.net:9200/api/v1/thaiwater30/provinces/waterlevel").then(r => {
+    let critical = r.data.data.filter(item => item.diff_wl_bank_text == 'ล้นตลิ่ง (ม.)')
+    showList(critical);
+    showChart(critical);
+    r.data.data.forEach(item => {
+        let latlng = { lat: item.station.tele_station_lat, lng: item.station.tele_station_long }
+        L.marker(latlng, { icon: item.diff_wl_bank_text == 'ล้นตลิ่ง (ม.)' ? redIcon : greenIcon }).addTo(map).bindPopup(`${item.station.tele_station_name.th}<br>${item.waterlevel_msl} mm.<br>${item.diff_wl_bank_text}`)
+    })
+});
+
+
