@@ -124,3 +124,13 @@ function showChart(item) {
     const chart = new ApexCharts(document.querySelector("#chart"), options);
     chart.render();
 }
+
+
+{
+    "type": "Feature",
+        "properties": { },
+    "geometry": {
+        "coordinates": [98.95008646201433, 18.802807086857513],
+            "type": "Point"
+    }
+}
