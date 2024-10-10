@@ -56,13 +56,16 @@ let redIcon = L.icon({
     popupAnchor: [7, -25]
 })
 
-axios.get("http://api2.thaiwater.net:9200/api/v1/thaiwater30/provinces/waterlevel").then(r => {
+axios.get("https://api-v3.thaiwater.net/api/v1/thaiwater30/public/waterlevel_load").then(r => {
 
-    let critical = r.data.data.filter(item => item.diff_wl_bank_text == 'ล้นตลิ่ง (ม.)')
+    // console.log(r.data.waterlevel_data.data);
+
+
+    let critical = r.data.waterlevel_data.data.filter(item => item.diff_wl_bank_text == 'ล้นตลิ่ง (ม.)')
     showList(critical);
     showChart(critical);
 
-    r.data.data.forEach(item => {
+    r.data.waterlevel_data.data.forEach(item => {
         console.log(item);
         let latlng = { lat: item.station.tele_station_lat, lng: item.station.tele_station_long }
         L.marker(latlng, { icon: item.diff_wl_bank_text == 'ล้นตลิ่ง (ม.)' ? redIcon : greenIcon }).addTo(map).bindPopup(`${item.station.tele_station_name.th}<br>${item.waterlevel_msl} mm.<br>${item.diff_wl_bank_text}`)
